@@ -9,38 +9,38 @@ import (
 	"os"
 
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
 var DB *sql.DB
 
 func InitDB() {
-	// Load .env
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+	// Optional: Load .env only in local dev
+	if os.Getenv("RENDER") != "true" {
+		if err := godotenv.Load(); err != nil {
+			fmt.Println("No .env file found, using environment variables")
+		}
 	}
 
-	// Register SSL CA for TiDB
-	rootCertPool := x509.NewCertPool()
-	pem, err := os.ReadFile(os.Getenv("DB_SSL_CA"))
-	//db file
-	if err != nil {
-		log.Fatalf("Failed to read SSL CA file: %v", err)
+	// Load PEM from environment variable content
+	pemContent := os.Getenv("DB_SSL_CA_CONTENT")
+	if pemContent == "" {
+		log.Fatal("DB_SSL_CA_CONTENT environment variable not set")
 	}
-	if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
-		log.Fatal("Failed to append PEM.")
+	rootCertPool := x509.NewCertPool()
+	if ok := rootCertPool.AppendCertsFromPEM([]byte(pemContent)); !ok {
+		log.Fatal("Failed to append PEM content")
 	}
 
 	// Register TLS config
-	err = mysql.RegisterTLSConfig("tidb", &tls.Config{
+	err := mysql.RegisterTLSConfig("tidb", &tls.Config{
 		RootCAs: rootCertPool,
 	})
 	if err != nil {
 		log.Fatalf("Failed to register TLS config: %v", err)
 	}
 
-	// DSN with tls=tidb
+	// DSN
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?tls=tidb",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -54,7 +54,6 @@ func InitDB() {
 		log.Fatalf("Error opening DB: %v", err)
 	}
 
-	// Check connection
 	if err = DB.Ping(); err != nil {
 		log.Fatalf("Error connecting to DB: %v", err)
 	}
