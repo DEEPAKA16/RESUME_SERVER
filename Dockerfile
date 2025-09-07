@@ -1,29 +1,30 @@
-# 1. Base Go image
-FROM golang:1.22-alpine
+# Use the correct Go version (>= 1.24.2)
+FROM golang:1.24-alpine AS builder
 
-# 2. Set working directory
+# Set working directory
 WORKDIR /app
 
-# 3. Install git + certificates
+# Install git and certificates
 RUN apk add --no-cache git ca-certificates && update-ca-certificates
 
-# 4. Copy go.mod and go.sum first (better caching)
+# Copy go.mod and go.sum first for dependency caching
 COPY go.mod go.sum ./
 
-# 5. Download deps
+# Download dependencies
 RUN go mod download
 
-# 6. Copy project files
+# Copy the entire project
 COPY . .
 
-# 7. Build Go binary
-RUN go build -o main .
+# Build the Go app
+RUN go build -o app .
 
-# 8. Copy SSL cert
-COPY isrgrootx1.pem /app/isrgrootx1.pem
+# Final lightweight image
+FROM alpine:latest
+WORKDIR /root/
 
-# 9. Expose port (must match your Go server port)
-EXPOSE 6001
+# Copy compiled binary
+COPY --from=builder /app/app .
 
-# 10. Run the app
-CMD ["./main"]
+# Run app
+CMD ["./app"]
