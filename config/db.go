@@ -24,6 +24,7 @@ func InitDB() {
 	// Register SSL CA for TiDB
 	rootCertPool := x509.NewCertPool()
 	pem, err := os.ReadFile(os.Getenv("DB_SSL_CA"))
+	//db file
 	if err != nil {
 		log.Fatalf("Failed to read SSL CA file: %v", err)
 	}
