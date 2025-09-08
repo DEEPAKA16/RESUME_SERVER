@@ -1,9 +1,12 @@
 package main
+
 import (
 	"bitresume/config"
+	"os"
 	// "bitresume/jobs"
 	"bitresume/routes"
 	"log"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -37,5 +40,5 @@ func main() {
 	// 	panic("Failed to schedule cron job: " + errCron.Error())
 	// }
 	c.Start()
-	r.Run(":6001")
+	r.Run(":" + os.Getenv("PORT"))
 }
