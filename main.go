@@ -22,7 +22,7 @@ func main() {
     })
 	r.Static("/uploads", "./uploads")
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"https://student-smart-hub.web.app/"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
