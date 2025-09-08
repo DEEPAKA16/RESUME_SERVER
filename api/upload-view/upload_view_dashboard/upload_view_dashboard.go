@@ -12,12 +12,11 @@ import (
 func UploadViewDashboard(c *gin.Context) {
 	rollno := c.Param("rollno")
     fmt.Println(rollno)
-    fmt.Print("kalif")
 	query := `
 SELECT *
 FROM (
     SELECT
-        p.id,
+    p.id,
         p.title_idea AS title,
         p.summary AS description,
         'Project' AS type,

@@ -122,7 +122,7 @@ func HandleMenteesData(c *gin.Context) {
 			AND acg1.currdate = latest_acg.max_date
 	) acg
 		ON l.rollno = acg.rollno
-	WHERE l.mentor_id = ?;
+	WHERE l.mentor_id = ? order by current_point desc;
 	`
 	rows, err := config.DB.Query(query, rollno)
 	if err != nil {
